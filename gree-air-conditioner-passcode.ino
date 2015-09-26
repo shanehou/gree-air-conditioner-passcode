@@ -21,11 +21,20 @@ void setup()
 void loop() {
   unsigned int raw_codes[2+BITS*2+4*2+1+BITS*2] = {9000, 4500, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ONE_SPACE, BIT_MARK, ZERO_SPACE, BIT_MARK, 20000, BIT_MARK};
   offset = 2+BITS*2+4*2+1;
+  unsigned int n = i;
+  byte number[6] = {0};
+  byte pos = 0;
+  do {
+    number[pos] = n % 10;
+    n /= 10;
+    number[pos] = reverse_table[number[pos]];
+    pos++;
+  } while (n > 0);
   byte data[4] = {0};
-  data[0] = reverse_table[byte(i % 10)];
-  data[1] = (reverse_table[byte((i / 10) % 10)] << 4) | (reverse_table[byte((i / 100) % 10)]);
-  data[2] = (reverse_table[byte((i / 1000) % 10)] << 4) | (reverse_table[byte((i / 10000) % 10)]);
-  data[3] = (reverse_table[byte((i / 100000) % 10)] << 4) | (reverse_table[0x0F & (B00001011 + byte(i % 16))]);
+  data[0] = number[0];
+  data[1] = (number[1] << 4) | number[2];
+  data[2] = (number[3] << 4) | number[4];
+  data[3] = (number[5] << 4) | (reverse_table[0x0F & (B00001011 + reverse_table[number[0]] + reverse_table[number[2]] + reverse_table[number[4]])]);
   for (byte index = 0; index < 4; index++) {
     byte mask = 0x80;
     while (mask) {
